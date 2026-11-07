@@ -1,50 +1,35 @@
-import os
-import pandas as pd
-import requests
+name: Auto-Generate ElevenLabs Audio
 
-API_KEY = os.environ.get("ELEVENLABS_API_KEY")
-VOICE_ID = "nDJIICjR9zfJExIFeSCN"
+on:
+  push:
+    paths:
+      - 'vokabeln.csv'
 
-if not API_KEY:
-    print("Fehler: ELEVENLABS_API_KEY Secret nicht gefunden!")
-    exit(1)
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
 
-if not os.path.exists("vokabeln.csv"):
-    print("vokabeln.csv nicht gefunden.")
-    exit(1)
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-df = pd.read_csv("vokabeln.csv")
-url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-headers = {
-    "Accept": "audio/mpeg",
-    "Content-Type": "application/json",
-    "xi-api-key": API_KEY
-}
+      - name: Abhängigkeiten installieren
+        run: pip install pandas requests
 
-new_count = 0
-for index, row in df.iterrows():
-    word = str(row['en']).strip()
-    safe_filename = "".join([c if c.isalnum() else "_" for c in word.lower()])
-    while "__" in safe_filename: safe_filename = safe_filename.replace("__", "_")
-    safe_filename = safe_filename.strip("_") + ".mp3"
-    
-    if os.path.exists(safe_filename):
-        continue
-        
-    data = {
-        "text": word,
-        "model_id": "eleven_multilingual_v2",
-        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
-    }
-    
-    print(f"Generiere neue MP3: '{word}' -> {safe_filename}")
-    response = requests.post(url, json=data, headers=headers)
-    
-    if response.status_code == 200:
-        with open(safe_filename, "wb") as f:
-            f.write(response.content)
-        new_count += 1
-    else:
-        print(f"Fehler bei '{word}': {response.status_code}")
+      - name: Audiogenerierung starten
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python generate_audio.py
 
-print(f"Fertig! {new_count} neue Audiodateien generiert.")
+      - name: Neue MP3s automatisch speichern
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.mp3
+          git diff --staged --quiet || (git commit -m "Auto-generate new audio files via GitHub Action" && git push)

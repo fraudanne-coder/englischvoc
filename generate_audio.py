@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 API_KEY = os.environ.get("ELEVENLABS_API_KEY")
-VOICE_ID = "nDJIICjR9zfJExIFeSCN" # Emmaline Young (British girl)
+VOICE_ID = "nDJIICjR9zfJExIFeSCN"
 
 if not API_KEY:
     print("Fehler: ELEVENLABS_API_KEY Secret nicht gefunden!")

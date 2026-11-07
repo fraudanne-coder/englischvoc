@@ -1,0 +1,35 @@
+name: Auto-Generate ElevenLabs Audio
+
+on:
+  push:
+    paths:
+      - 'vokabeln.csv'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Abhängigkeiten installieren
+        run: pip install pandas requests
+
+      - name: Audiogenerierung starten
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python generate_audio.py
+
+      - name: Neue MP3s automatisch speichern
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.mp3
+          git diff --staged --quiet || (git commit -m "Auto-generate new audio files via GitHub Action" && git push)

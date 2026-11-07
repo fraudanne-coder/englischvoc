@@ -9,7 +9,6 @@ API_KEY = os.getenv("ELEVENLABS_API_KEY")
 if not API_KEY:
     raise ValueError("Fehler: ELEVENLABS_API_KEY Secret nicht gefunden!")
 
-# CSV-Datei einlesen
 if not os.path.exists("vokabeln.csv"):
     raise FileNotFoundError("Die Datei vokabeln.csv wurde nicht gefunden.")
 
@@ -26,7 +25,6 @@ headers = {
     "xi-api-key": API_KEY
 }
 
-# Über alle Zeilen iterieren und MP3s generieren, falls sie noch fehlen
 for index, row in df.iterrows():
     word = str(row["en"]).strip()
     if not word or pd.isna(row["en"]):
@@ -34,7 +32,6 @@ for index, row in df.iterrows():
         
     filename = f"{word}.mp3"
     
-    # Überspringen, wenn die Datei bereits existiert
     if os.path.exists(filename):
         continue
 
@@ -47,13 +44,14 @@ for index, row in df.iterrows():
         }
     }
 
-    print(f"Generiere neue MP3: '{word}' -> {filename}")
+    print(f"Generiere neue MP3: '{word}' -> {filename}", flush=True)
     response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
         with open(filename, "wb") as f:
             f.write(response.content)
+        print(f"Erfolgreich gespeichert: {filename}", flush=True)
     else:
-        print(f"Fehler bei '{word}': {response.status_code}")
+        print(f"Fehler bei '{word}': Statuscode {response.status_code}", flush=True)
 
-print("Fertig! Alle Audioprozesse abgeschlossen.")
+print("Fertig! Alle Audioprozesse abgeschlossen.", flush=True)

@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'vokabeln.csv'
+  workflow_dispatch:
 
 jobs:
   build:

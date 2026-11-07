@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 # Konfiguration
-VOICE_ID = "nDJIICjR9zfJExIFeSCN"  # Emmaline Young
+VOICE_ID = "nDJIICjR9zfJExIFeSCN"  # Deine neue Stimme
 API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 if not API_KEY:
@@ -30,12 +30,9 @@ for index, row in df.iterrows():
     if not word or pd.isna(row["en"]):
         continue
         
-    # Leerzeichen durch Unterstrich ersetzen, damit der Dateiname sauber ist
+    # Leerzeichen durch Unterstrich ersetzen für saubere Dateinamen
     safe_filename_base = word.replace(" ", "_")
     filename = f"{safe_filename_base}.mp3"
-    
-    if os.path.exists(filename):
-        continue
 
     payload = {
         "text": word,
@@ -46,7 +43,7 @@ for index, row in df.iterrows():
         }
     }
 
-    print(f"Generiere neue MP3: '{word}' -> {filename}", flush=True)
+    print(f"Generiere/Überschreibe MP3: '{word}' -> {filename}", flush=True)
     response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
@@ -56,4 +53,4 @@ for index, row in df.iterrows():
     else:
         print(f"Fehler bei '{word}': Statuscode {response.status_code} - Antwort: {response.text}", flush=True)
 
-print("Fertig! Alle Audioprozesse abgeschlossen.", flush=True)
+print("Fertig! Alle Audiodateien wurden mit der neuen Stimme aktualisiert.", flush=True)

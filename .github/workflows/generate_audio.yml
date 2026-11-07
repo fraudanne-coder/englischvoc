@@ -35,11 +35,7 @@ jobs:
           git add *.mp3
           git diff --staged --quiet || (git commit -m "Auto-generate new audio files via GitHub Action" && git push)
 
-          - name: Run python generate_audio.py
-        run: python generate_audio.py
-        env:
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-
+    
       # NEU: Generierte MP3s automatisch ins Repository pushen
       - name: Commit and push generated MP3s
         run: |

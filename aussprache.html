@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vokabel-Aussprache-Trainer</title>
+    <!-- PapaParse zum einfachen Einlesen von CSV-Dateien im Browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -22,7 +24,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             text-align: center;
-            width: 320px;
+            width: 340px;
         }
         .batch-select {
             margin-bottom: 1.5rem;
@@ -32,6 +34,8 @@
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         .vocab-display {
             min-height: 110px;
@@ -60,6 +64,7 @@
             font-size: 1rem;
             cursor: pointer;
             margin-bottom: 1.5rem;
+            width: 100%;
             transition: background 0.2s;
         }
         .audio-btn:hover {
@@ -100,17 +105,16 @@
     <div class="trainer-card">
         <!-- Batch / Kategorie Auswahl -->
         <div class="batch-select">
-            <label for="batchSelect">Batch wählen: </label>
+            <label for="batchSelect"><strong>Batch wählen:</strong></label><br><br>
             <select id="batchSelect" onchange="changeBatch()">
                 <option value="alle">Alle Vokabeln</option>
-                <option value="unit1">Unit 1 (Beispiele)</option>
             </select>
         </div>
 
         <!-- Vokabel Anzeige -->
         <div class="vocab-display">
-            <div id="englishWord" class="english-word">Lade...</div>
-            <div id="germanWord" class="german-translation">...</div>
+            <div id="englishWord" class="english-word">Lade CSV...</div>
+            <div id="germanWord" class="german-translation">Bitte warten</div>
         </div>
 
         <!-- Aussprache / Wiederholen Button -->
@@ -124,28 +128,96 @@
     </div>
 
     <script>
-        // Beispiel-Daten (später kannst du das dynamisch aus deiner CSV laden)
-        const vocabList = [
-            { en: "yellow", de: "gelb" },
-            { en: "railway station", de: "Bahnhof" },
-            { en: "to enjoy", de: "genießen" },
-            { en: "in the middle", de: "in der Mitte" }
-        ];
-
+        let allVocabs = [];
+        let filteredVocabs = [];
         let currentIndex = 0;
 
+        // CSV beim Laden der Seite einlesen
+        window.onload = function() {
+            Papa.parse("vokabeln.csv", {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allVocabs = results.data;
+                    setupBatches();
+                    filterVocabs();
+                },
+                error: function(err) {
+                    document.getElementById("englishWord").textContent = "Fehler";
+                    document.getElementById("germanWord").textContent = "vokabeln.csv nicht gefunden";
+                    console.error("CSV Ladefehler:", err);
+                }
+            });
+        };
+
+        // Dynamisches Befüllen des Dropdowns aus der CSV (sucht nach Spalte 'batch' oder 'unit')
+        function setupBatches() {
+            const batchSelect = document.getElementById("batchSelect");
+            const batches = new Set();
+
+            allVocabs.forEach(row => {
+                // Prüft ob eine Spalte 'batch' oder 'unit' existiert
+                let batchVal = row.batch || row.unit;
+                if (batchVal) {
+                    batches.add(batchVal.trim());
+                }
+            });
+
+            // Falls Batches gefunden wurden, Dropdown erweitern
+            batches.forEach(batch => {
+                let option = document.createElement("option");
+                option.value = batch;
+                option.textContent = batch;
+                batchSelect.appendChild(option);
+            });
+        }
+
+        // Vokabeln basierend auf der Auswahl filtern
+        function changeBatch() {
+            currentIndex = 0;
+            filterVocabs();
+        }
+
+        function filterVocabs() {
+            const selectedBatch = document.getElementById("batchSelect").value;
+
+            if (selectedBatch === "alle") {
+                filteredVocabs = [...allVocabs];
+            } else {
+                filteredVocabs = allVocabs.filter(row => (row.batch && row.batch.trim() === selectedBatch) || (row.unit && row.unit.trim() === selectedBatch));
+            }
+
+            updateCard();
+        }
+
         function updateCard() {
-            if (vocabList.length === 0) return;
-            const current = vocabList[currentIndex];
-            document.getElementById("englishWord").textContent = current.en;
-            document.getElementById("germanWord").textContent = current.de;
+            if (filteredVocabs.length === 0) {
+                document.getElementById("englishWord").textContent = "Keine Daten";
+                document.getElementById("germanWord").textContent = "";
+                return;
+            }
+
+            const current = filteredVocabs[currentIndex];
+            // Unterstützt sowohl 'en' / 'de' als auch 'englisch' / 'deutsch' als Spaltennamen
+            const enText = current.en || current.englisch || "";
+            const deText = current.de || current.deutsch || "";
+
+            document.getElementById("englishWord").textContent = enText;
+            document.getElementById("germanWord").textContent = deText;
             
-            // Automatisch beim Wechsel die Aussprache abspielen (optional, falls gewünscht)
-            playCurrentAudio();
+            if (enText) {
+                playCurrentAudio();
+            }
         }
 
         function playCurrentAudio() {
-            const word = vocabList[currentIndex].en;
+            if (filteredVocabs.length === 0) return;
+            const current = filteredVocabs[currentIndex];
+            const word = current.en || current.englisch || "";
+            
+            if (!word) return;
+
             // Wandelt Leerzeichen automatisch in Unterstriche um (z.B. "railway station" -> "railway_station.mp3")
             let filename = word.trim().toLowerCase().replace(/\s+/g, '_') + '.mp3';
             
@@ -160,19 +232,10 @@
         }
 
         function nextWord() {
-            currentIndex = (currentIndex + 1) % vocabList.length;
+            if (filteredVocabs.length === 0) return;
+            currentIndex = (currentIndex + 1) % filteredVocabs.length;
             updateCard();
         }
-
-        function changeBatch() {
-            currentIndex = 0;
-            updateCard();
-        }
-
-        // Initial beim Laden der Seite die erste Vokabel anzeigen
-        window.onload = function() {
-            updateCard();
-        };
     </script>
 
 </body>

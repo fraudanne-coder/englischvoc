@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabel-Aussprachetrainer (UK)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 500px;
+            text-align: center;
+        }
+        select {
+            width: 85%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            background: #fff;
+        }
+        .display-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 30px 20px;
+            margin-bottom: 25px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .english-word {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .word-token {
+            padding: 0 4px;
+            border-radius: 4px;
+            transition: background 0.1s;
+        }
+        .highlight {
+            background-color: #fde047;
+            color: #854d0e;
+        }
+        .german-translation {
+            font-size: 16px;
+            color: #64748b;
+            font-style: italic;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0369a1;
+        }
+        button:secondary {
+            background-color: #64748b;
+        }
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+        .progress {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .setup-screen { display: block; }
+        .training-screen { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Aussprache-Trainer (UK) 🔊</h2>
+
+        <!-- SETUP: BATCH AUSWÄHLEN -->
+        <div id="setup-screen" class="setup-screen">
+            <p style="font-size: 14px; color: #445;">Wähle ein Kapitel für das Aussprache-Training:</p>
+            <select id="batch-select">
+                <option value="all">Alle Batches laden</option>
+            </select>
+            <br>
+            <button onclick="startTraining()">Training starten</button>
+        </div>
+
+        <!-- TRAININGSCREEN -->
+        <div id="training-screen" class="training-screen">
+            <div class="progress" id="progress-display">Vokabel 1 von 1</div>
+            
+            <div class="display-box">
+                <div class="english-word" id="english-container">Lade...</div>
+                <div class="german-translation" id="german-container">-</div>
+            </div>
+
+            <div class="btn-group">
+                <button id="speak-btn" onclick="playAudio()">Vorlesen 🔊</button>
+                <button onclick="nextWord()" style="background-color: #0d9488;">Weiter ➡️</button>
+            </div>
+            <br>
+            <button onclick="location.reload()" style="background-color: #64748b; font-size: 13px; padding: 6px 12px;">Zurück zur Batch-Auswahl</button>
+        </div>
+    </div>
+
+    <script>
+        let allVocabulary = [];
+        let activeVocabulary = [];
+        let currentIndex = 0;
+        let synth = window.speechSynthesis;
+
+        async function loadVocabulary() {
+            try {
+                const response = await fetch('vokabeln.csv');
+                const data = await response.text();
+                
+                const lines = data.trim().split('\n');
+                let batchesSet = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const row = parseCSVRow(lines[i]);
+                    if (row.length >= 3) {
+                        const batch = row[0].trim();
+                        const en = row[1].trim();
+                        const de = row[2].trim();
+                        
+                        allVocabulary.push({ batch, en, de });
+                        if (batch) batchesSet.add(batch);
+                    }
+                }
+
+                const select = document.getElementById("batch-select");
+                batchesSet.forEach(batch => {
+                    const option = document.createElement("option");
+                    option.value = batch;
+                    option.innerText = batch.charAt(0).toUpperCase() + batch.slice(1);
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                alert("Fehler beim Laden der vokabeln.csv.");
+                console.error(error);
+            }
+        }
+
+        function parseCSVRow(text) {
+            let result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function startTraining() {
+            const selectedBatch = document.getElementById("batch-select").value;
+            
+            if (selectedBatch === "all") {
+                activeVocabulary = [...allVocabulary];
+            } else {
+                activeVocabulary = allVocabulary.filter(item => item.batch === selectedBatch);
+            }
+
+            if (activeVocabulary.length === 0) {
+                alert("Keine Vokabeln gefunden!");
+                return;
+            }
+
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("training-screen").style.display = "block";
+            
+            currentIndex = 0;
+            showWord();
+        }
+
+        let wordSpans = [];
+
+        function showWord() {
+            if (currentIndex >= activeVocabulary.length) {
+                document.getElementById("training-screen").innerHTML = `
+                    <h2>Super gemacht! 🎉</h2>
+                    <p>Du hast diesen Batch erfolgreich durchgesprochen.</p>
+                    <button onclick="location.reload()">Neues Kapitel wählen</button>
+                `;
+                return;
+            }
+
+            const current = activeVocabulary[currentIndex];
+            document.getElementById("progress-display").innerText = `Vokabel ${currentIndex + 1} von ${activeVocabulary.length}`;
+            document.getElementById("german-container").innerText = current.de;
+
+            const engContainer = document.getElementById("english-container");
+            engContainer.innerHTML = "";
+            wordSpans = [];
+
+            // Wörter / Tokens aufteilen für Highlighting
+            const tokens = current.en.match(/[\w'-]+|[^\s\w]/g) || [current.en];
+            tokens.forEach(token => {
+                const span = document.createElement("span");
+                span.className = "word-token";
+                span.innerText = token;
+                engContainer.appendChild(span);
+
+                if (/[\w'-]+/.test(token)) {
+                    wordSpans.push({ element: span, isPunctuation: false });
+                } else {
+                    wordSpans.push({ element: span, isPunctuation: true });
+                }
+            });
+
+            // Automatisch beim Aufrufen direkt vorlesen lassen
+            playAudio();
+        }
+
+        function playAudio() {
+            if (!synth) {
+                alert("Dein Browser unterstützt keine Sprachausgabe.");
+                return;
+            }
+
+            synth.cancel();
+
+            const current = activeVocabulary[currentIndex];
+            let utterance = new SpeechSynthesisUtterance(current.en);
+            utterance.lang = 'en-GB'; // Britisches Englisch
+            utterance.rate = 0.8;     // Ruhiges Lerntempo
+
+            let currentTokenIndex = 0;
+
+            utterance.onboundary = function(event) {
+                if (event.name === 'word') {
+                    wordSpans.forEach(item => item.element.classList.remove("highlight"));
+                    
+                    while (currentTokenIndex < wordSpans.length && wordSpans[currentTokenIndex].isPunctuation) {
+                        currentTokenIndex++;
+                    }
+                    if (wordSpans[currentTokenIndex]) {
+                        wordSpans[currentTokenIndex].element.classList.add("highlight");
+                        currentTokenIndex++;
+                    }
+                }
+            };
+
+            utterance.onend = function() {
+                wordSpans.forEach(item => item.element.classList.remove("highlight"));
+            };
+
+            synth.speak(utterance);
+        }
+
+        function nextWord() {
+            synth.cancel();
+            currentIndex++;
+            showWord();
+        }
+
+        loadVocabulary();
+    </script>
+
+</body>
+</html>

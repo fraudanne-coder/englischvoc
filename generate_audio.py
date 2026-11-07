@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 # Konfiguration
-VOICE_ID = "nDJIICjR9zfJExIFeSCN"  # Deine neue Stimme
+VOICE_ID = "nDJIICjR9zfJExIFeSCN"  # Deine Stimme
 API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 if not API_KEY:
@@ -34,6 +34,10 @@ for index, row in df.iterrows():
     safe_filename_base = word.replace(" ", "_")
     filename = f"{safe_filename_base}.mp3"
 
+    # GUTHABEN-SCHUTZ: Überspringen, wenn die MP3 bereits existiert
+    if os.path.exists(filename) and os.path.getsize(filename) > 0:
+        continue
+
     payload = {
         "text": word,
         "model_id": "eleven_multilingual_v2",
@@ -43,7 +47,7 @@ for index, row in df.iterrows():
         }
     }
 
-    print(f"Generiere/Überschreibe MP3: '{word}' -> {filename}", flush=True)
+    print(f"Generiere neue MP3: '{word}' -> {filename}", flush=True)
     response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
@@ -53,4 +57,4 @@ for index, row in df.iterrows():
     else:
         print(f"Fehler bei '{word}': Statuscode {response.status_code} - Antwort: {response.text}", flush=True)
 
-print("Fertig! Alle Audiodateien wurden mit der neuen Stimme aktualisiert.", flush=True)
+print("Fertig! Keine unnötigen API-Abfragen.", flush=True)

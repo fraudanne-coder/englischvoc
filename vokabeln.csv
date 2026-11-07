@@ -13,33 +13,78 @@ batch1,even,selbst; sogar,"Even,a,child,can,understand,that.",Sogar ein Kind kan
 batch1,palace,der Palast,"Buckingham,Palace,is,very,famous.",Buckingham Palace ist sehr berühmt.
 batch1,to relax,sich entspannen,"After,school,I,want,to,relax.",Nach der Schule möchte ich mich entspannen.
 batch1,grass,"das Gras; die Wiese, der Rasen","The,grass,in,the,park,is,green.",Das Gras im Park ist grün.
-batch1,sun,die Sonne,"Let's,go,out,and,enjoy,the,sun.",Let's go out and enjoy the sun.
+batch1,sun,die Sonne,"Let's,go,out,and,enjoy,the,sun.",Lasst uns rausgehen und die Sonne genießen.
 batch1,boat,das Boot; das Schiff,"There,is,a,boat,on,the,lake.",Da ist ein Boot auf dem See.
 batch1,lake,der See,"We,swim,in,the,cold,lake.",Wir schwimmen im kalten See.
 batch1,in the middle,in der Mitte; mitten in/auf,"There,is,a,tree,in,the,middle.",Es gibt einen Baum in der Mitte.
 batch1,dinosaur,der Dinosaurier,"The,dinosaur,is,huge.",Der Dinosaurier ist riesig.
 batch1,to find out,herausfinden,"We,need,to,find,out,the,truth.",Wir müssen die Wahrheit herausfinden.
 batch1,free,"hier: gratis, umsonst","How,much,is,this,book?,Nothing.,It's,free.",Wie viel kostet dieses Buch? - Nichts. Es ist kostenlos.
-batch1,money,das Geld,"I,have,some,money,in,my,pocket.",Ich habe etwas Geld in meiner Tasche.
+batch1,amazing,"toll, unglaublich","That,is,an,amazing,story.",Das ist eine unglaublich tolle Geschichte.
+batch2,ship,das Schiff,"The,big,ship,is,on,the,water.",Das große Schiff ist auf dem Wasser.
+batch2,clock,die Uhr,"The,clock,shows,two,o'clock.",Die Uhr zeigt zwei Uhr.
+batch2,money,das Geld,"I,have,some,money,in,my,pocket.",Ich habe etwas Geld in meiner Tasche.
 batch2,metre,der Meter,"The,pool,is,twenty,metres,long.",Das Schwimmbad ist zwanzig Meter lang.
 batch2,time,hier: das Mal; die Zeit,"When,was,the,last,time,you,went,to,the,gym?",Wann warst du das letzte Mal im Fitnessstudio?
 batch2,like,wie,"This,cat,looks,like,a,small,tiger.",Diese Katze sieht aus wie ein kleiner Tiger.
+batch2,after that,"anschließend, danach","We,had,pizza,and,after,that,we,went,home.",Wir haben Pizza gegessen und sind danach nach Hause gegangen.
 batch2,weekend,das Wochenende,"I,love,the,weekend.",Ich liebe das Wochenende.
 batch2,to show,zeigen,"Can,you,show,me,the,way?",Kannst du mir den Weg zeigen?
 batch2,kind,"nett, freundlich","She,is,very,kind,to,everyone.",Sie ist sehr nett zu jedem.
+batch2,to look forward to,sich freuen auf,"I'm,really,looking,forward,to,the,holidays.",Ich freue mich wirklich sehr auf die Ferien.
+batch2,let,lassen,"Let,me,help,you.",Lass mir dir helfen.
+batch2,as soon as possible,so bald wie möglich,"Please,reply,as,soon,as,possible.",Bitte antworte so bald wie möglich.
+batch2,forever,ewig,"Friends,forever.",Für immer Freunde.
+batch2,at the moment,im Moment,"I,am,busy,at,the,moment.",Ich bin im Moment beschäftigt.
 batch2,tour guide,der/die Reiseführer/in,"The,tour,guide,shows,us,the,city.",Der Reiseführer zeigt uns die Stadt.
 batch2,fact,"die Tatsache, Fakt","That,is,an,interesting,fact.",Das ist eine interessante Tatsache.
 batch2,to visit,besuchen,"We,want,to,visit,our,friends.",Wir wollen unsere Freunde besuchen.
-batch2,worried,besorgt,"Why,are,you,so,worried?",Warum bist du so besorgt?
-batch2,to follow,folgen,"Please,follow,me.",Bitte folge mir.
-batch3,after that,"anschließend, danach","We,had,pizza,and,after,that,we,went,home.",Wir haben Pizza gegessen und sind danach nach Hause gegangen.
-batch3,to look forward to,sich freuen auf,"I'm,really,looking,forward,to,the,holidays.",Ich freue mich wirklich sehr auf die Ferien.
-batch3,direction,die Richtung,"Which,direction,should,we,go?",In welche Richtung sollen wir gehen?
-batch3,strange,"seltsam, fremd","That,is,a,very,strange,noise.",Das ist ein sehr seltsames Geräusch.
-batch3,to reach,erreichen,"We,can,reach,the,station,on,foot.",Wir können den Bahnhof zu Fuß erreichen.
-batch3,to text,eine Nachricht schreiben,"I,will,text,you,later.",Ich schreibe dir später eine Nachricht.
-batch3,three,drei,"There,are,three,books,on,the,table.",Es liegen drei Bücher auf dem Tisch.
-batch3,dead,tot,"The,battery,is,dead.",Der Akku ist leer.
-batch3,excited,"aufgeregt, begeistert","The,children,are,very,excited.",Die Kinder sind sehr aufgeregt.
-batch3,to hope,hoffen,"I,hope,you,like,it.","Ich hoffe, es gefällt dir."
-batch3,safe,sicher,"It,is,safe,to,swim,here.",It is safe to swim here.
+batch2,on the left,"links, auf der linken Seite","Turn,on,the,left.",Biege links ab.
+batch2,on the right,"rechts, auf der rechten Seite","Turn,on,the,right.",Biege rechts ab.
+batch2,at the top,"oben, am oberen Ende","Look,at,the,top.",Schau nach oben.
+batch2,at the bottom,"unten, am unteren Ende","Read,at,the,bottom.",Lies unten.
+batch3,worried,"beunruhigt, besorgt","I'm,worried,about,my,sister.",Ich bin besorgt wegen meiner Schwester.
+batch3,to follow,folgen,"Please,follow,me.",Bitte folge mir.
+batch3,directions,Wegbeschreibung,"Follow,the,directions.",Folge der Wegbeschreibung.
+batch3,strange,"sonderbar, komisch","That,is,a,strange,noise.",Das ist ein komisches Geräusch.
+batch3,to reach,erreichen,"We,can,reach,the,station.",Wir können den Bahnhof erreichen.
+batch3,to text,eine SMS/Nachricht schreiben,"I,will,text,you.",Ich schreibe dir eine Nachricht.
+batch3,three years ago,vor (drei) Jahren,"I,was,there,three,years,ago.",Ich war vor drei Jahren dort.
+batch3,dead,tot; hier: leer (Akku),"My,phone,is,dead.",Mein Handy ist leer.
+batch3,someone,jemand,"Is,there,someone?",Ist da jemand?
+batch3,excuse me,Entschuldigen Sie!,"Excuse,me,where,is,the,station?","Entschuldigung, wo ist der Bahnhof?"
+batch3,i'm sorry,Es tut mir leid.,"I'm,sorry,I,don't,know.","Es tut mir leid, ich weiß es nicht."
+batch3,to turn,sich drehen; abbiegen,"Turn,left.",Biege links ab.
+batch3,left,links,"Go,left.",Geh nach links.
+batch3,right,rechts,"Go,right.",Geh nach rechts.
+batch3,straight on,geradeaus,"Go,straight,on.",Geh geradeaus.
+batch3,past,vorbei/vorüber an,"Walk,past,the,bank.",Geh an der Bank vorbei.
+batch3,to cross,überqueren,"Cross,the,street.",Überquere die Straße.
+batch3,cap,"die Mütze, die Kappe","Put,on,your,cap.",Setz deine Mütze auf.
+batch3,to charge,aufladen,"I,need,to,charge,my,phone.",Ich muss mein Handy aufladen.
+batch3,hippo,das Nilpferd,"The,hippo,is,in,the,water.",Das Nilpferd ist im Wasser.
+batch3,plant,die Pflanze,"Water,the,plant.",Gieße die Pflanze.
+batch3,frog,der Frosch,"The,frog,jumps.",Der Frosch springt.
+batch4,world,"die Welt, die Erde","Hello,world.",Hallo Welt.
+batch4,insect,das Insekt,"An,insect,on,the,leaf.",Ein Insekt auf dem Blatt.
+batch4,leaf,das Blatt,"Green,leaf.",Grünes Blatt.
+batch4,tortoise,die (Land)schildkröte,"The,tortoise,is,slow.",Die Schildkröte ist langsam.
+batch4,penguin,der Pinguin,"The,penguin,swims.",Der Pinguin schwimmt.
+batch4,fish,der Fisch,"Penguins,eat,fish.",Pinguine fressen Fisch.
+batch4,carrot,"die Möhre, die Karotte","Rabbits,eat,carrots.",Kaninchen fressen Karotten.
+batch4,sure,sicher,"Are,you,sure?",Bist du sicher?
+batch4,i don't think so,Das glaube ich nicht.,"I,don't,think,so.",Das glaube ich nicht.
+batch4,fur,das Fell; der Pelz,"The,cat,has,soft,fur.",Die Katze hat weiches Fell.
+batch4,tail,der Schwanz,"The,dog,wags,its,tail.",The dog wags its tail.
+batch4,sharp,scharf,"The,knife,is,sharp.",Das Messer ist scharf.
+batch4,mane,die Mähne,"The,lion,has,a,mane.",Der Löwe hat eine Mähne.
+batch4,paw,"die Pfote, die Tatze","Cat's,paw.",Katzenpfote.
+batch4,clever,"klug, gescheit, schlau","You,are,very,clever.",Du bist sehr schlau.
+batch4,strong,stark,"Lions,are,strong.",Lions sind stark.
+batch4,dangerous,gefährlich,"Wild,animals,are,dangerous.",Wilde Tiere sind gefährlich.
+batch4,to jump,springen,"Frogs,jump.",Frösche springen.
+batch4,normally,normalerweise,"I,normally,go,to,bed,early.",Ich gehe normalerweise früh ins Bett.
+batch4,last,"letzte(r, s)","Last,week.",Letzte Woche.
+batch4,quick,schnell,"Be,quick.",Sei schnell.
+batch4,to leave,verlassen,"Leave,the,room.",Verlasse den Raum.
+batch4,to scream,schreien; kreischen,"Don't,scream.",Schreie nicht.

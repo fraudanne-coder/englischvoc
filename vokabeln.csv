@@ -24,22 +24,22 @@ batch1,money,das Geld,"I,have,some,money,in,my,pocket.",Ich habe etwas Geld in m
 batch2,metre,der Meter,"The,pool,is,twenty,metres,long.",Das Schwimmbad ist zwanzig Meter lang.
 batch2,time,hier: das Mal; die Zeit,"When,was,the,last,time,you,went,to,the,gym?",Wann warst du das letzte Mal im Fitnessstudio?
 batch2,like,wie,"This,cat,looks,like,a,small,tiger.",Diese Katze sieht aus wie ein kleiner Tiger.
-batch2,after that,"anschließend, danach","We,had,pizza,and,after,that,we,went,home.",Wir haben Pizza gegessen und sind danach nach Hause gegangen.
 batch2,weekend,das Wochenende,"I,love,the,weekend.",Ich liebe das Wochenende.
 batch2,to show,zeigen,"Can,you,show,me,the,way?",Kannst du mir den Weg zeigen?
 batch2,kind,"nett, freundlich","She,is,very,kind,to,everyone.",Sie ist sehr nett zu jedem.
-batch2,to look forward to,sich freuen auf,"I'm,really,looking,forward,to,the,holidays.",Ich freue mich wirklich sehr auf die Ferien.
 batch2,tour guide,der/die Reiseführer/in,"The,tour,guide,shows,us,the,city.",Der Reiseführer zeigt uns die Stadt.
 batch2,fact,"die Tatsache, Fakt","That,is,an,interesting,fact.",Das ist eine interessante Tatsache.
 batch2,to visit,besuchen,"We,want,to,visit,our,friends.",Wir wollen unsere Freunde besuchen.
 batch2,worried,besorgt,"Why,are,you,so,worried?",Warum bist du so besorgt?
 batch2,to follow,folgen,"Please,follow,me.",Bitte folge mir.
-batch2,direction,die Richtung,"Which,direction,should,we,go?",In welche Richtung sollen wir gehen?
-batch2,strange,"seltsam, fremd","That,is,a,very,strange,noise.",Das ist ein sehr seltsames Geräusch.
-batch2,to reach,erreichen,"We,can,reach,the,station,on,foot.",Wir können den Bahnhof zu Fuß erreichen.
-batch2,to text,eine Nachricht schreiben,"I,will,text,you,later.",Ich schreibe dir später eine Nachricht.
-batch2,three,drei,"There,are,three,books,on,the,table.",Es liegen drei Bücher auf dem Tisch.
-batch2,dead,tot,"The,battery,is,dead.",Der Akku ist leer.
-batch2,excited,"aufgeregt, begeistert","The,children,are,very,excited.",Die Kinder sind sehr aufgeregt.
-batch2,to hope,hoffen,"I,hope,you,like,it.","Ich hoffe, es gefällt dir."
-batch2,safe,sicher,"It,is,safe,to,swim,here.","Es ist sicher, hier zu schwimmen."
+batch3,after that,"anschließend, danach","We,had,pizza,and,after,that,we,went,home.",Wir haben Pizza gegessen und sind danach nach Hause gegangen.
+batch3,to look forward to,sich freuen auf,"I'm,really,looking,forward,to,the,holidays.",Ich freue mich wirklich sehr auf die Ferien.
+batch3,direction,die Richtung,"Which,direction,should,we,go?",In welche Richtung sollen wir gehen?
+batch3,strange,"seltsam, fremd","That,is,a,very,strange,noise.",Das ist ein sehr seltsames Geräusch.
+batch3,to reach,erreichen,"We,can,reach,the,station,on,foot.",Wir können den Bahnhof zu Fuß erreichen.
+batch3,to text,eine Nachricht schreiben,"I,will,text,you,later.",Ich schreibe dir später eine Nachricht.
+batch3,three,drei,"There,are,three,books,on,the,table.",Es liegen drei Bücher auf dem Tisch.
+batch3,dead,tot,"The,battery,is,dead.",Der Akku ist leer.
+batch3,excited,"aufgeregt, begeistert","The,children,are,very,excited.",Die Kinder sind sehr aufgeregt.
+batch3,to hope,hoffen,"I,hope,you,like,it.","Ich hoffe, es gefällt dir."
+batch3,safe,sicher,"It,is,safe,to,swim,here.",It is safe to swim here.

@@ -2,36 +2,178 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vokabel-Aussprache-Trainer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .trainer-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 320px;
+        }
+        .batch-select {
+            margin-bottom: 1.5rem;
+        }
+        .batch-select select {
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .vocab-display {
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .english-word {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1d3557;
+            margin-bottom: 0.4rem;
+        }
+        .german-translation {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+        .audio-btn {
+            background-color: #457b9d;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: background 0.2s;
+        }
+        .audio-btn:hover {
+            background-color: #1d3557;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .nav-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-repeat {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .btn-repeat:hover {
+            background-color: #dde2e6;
+        }
+        .btn-next {
+            background-color: #2a9d8f;
+            color: white;
+        }
+        .btn-next:hover {
+            background-color: #21867a;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Mein Vokabel-Trainer</h1>
+    <div class="trainer-card">
+        <!-- Batch / Kategorie Auswahl -->
+        <div class="batch-select">
+            <label for="batchSelect">Batch wählen: </label>
+            <select id="batchSelect" onchange="changeBatch()">
+                <option value="alle">Alle Vokabeln</option>
+                <option value="unit1">Unit 1 (Beispiele)</option>
+            </select>
+        </div>
 
-    <!-- Beispiel 1: Einzelnes Wort ohne Leerzeichen -->
-    <div class="vocab-item">
-      <span>yellow</span>
-      <button onclick="playVocabAudio('yellow')">🔊 Anhören</button>
+        <!-- Vokabel Anzeige -->
+        <div class="vocab-display">
+            <div id="englishWord" class="english-word">Lade...</div>
+            <div id="germanWord" class="german-translation">...</div>
+        </div>
+
+        <!-- Aussprache / Wiederholen Button -->
+        <button class="audio-btn" onclick="playCurrentAudio()">🔊 Anhören</button>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="nav-btn btn-repeat" onclick="repeatWord()">Wiederholen</button>
+            <button class="nav-btn btn-next" onclick="nextWord()">Weiter ➔</button>
+        </div>
     </div>
 
-    <!-- Beispiel 2: Phrase mit Leerzeichen -->
-    <div class="vocab-item">
-      <span>railway station</span>
-      <button onclick="playVocabAudio('railway station')">🔊 Anhören</button>
-    </div>
-
-    <!-- Die universelle Abspielfunktion -->
     <script>
-    function playVocabAudio(word) {
-        // Wandelt Leerzeichen automatisch in Unterstriche um (z.B. "railway station" -> "railway_station.mp3")
-        let filename = word.trim().toLowerCase().replace(/\s+/g, '_') + '.mp3';
-        
-        let audio = new Audio(filename);
-        audio.play().catch(err => {
-            console.error("Audiodatei nicht gefunden: " + filename);
-        });
-    }
+        // Beispiel-Daten (später kannst du das dynamisch aus deiner CSV laden)
+        const vocabList = [
+            { en: "yellow", de: "gelb" },
+            { en: "railway station", de: "Bahnhof" },
+            { en: "to enjoy", de: "genießen" },
+            { en: "in the middle", de: "in der Mitte" }
+        ];
+
+        let currentIndex = 0;
+
+        function updateCard() {
+            if (vocabList.length === 0) return;
+            const current = vocabList[currentIndex];
+            document.getElementById("englishWord").textContent = current.en;
+            document.getElementById("germanWord").textContent = current.de;
+            
+            // Automatisch beim Wechsel die Aussprache abspielen (optional, falls gewünscht)
+            playCurrentAudio();
+        }
+
+        function playCurrentAudio() {
+            const word = vocabList[currentIndex].en;
+            // Wandelt Leerzeichen automatisch in Unterstriche um (z.B. "railway station" -> "railway_station.mp3")
+            let filename = word.trim().toLowerCase().replace(/\s+/g, '_') + '.mp3';
+            
+            let audio = new Audio(filename);
+            audio.play().catch(err => {
+                console.error("Audiodatei nicht gefunden: " + filename);
+            });
+        }
+
+        function repeatWord() {
+            playCurrentAudio();
+        }
+
+        function nextWord() {
+            currentIndex = (currentIndex + 1) % vocabList.length;
+            updateCard();
+        }
+
+        function changeBatch() {
+            currentIndex = 0;
+            updateCard();
+        }
+
+        // Initial beim Laden der Seite die erste Vokabel anzeigen
+        window.onload = function() {
+            updateCard();
+        };
     </script>
 
 </body>
-    </html>
+</html>

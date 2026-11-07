@@ -85,13 +85,6 @@
         button:hover {
             background-color: #0369a1;
         }
-        button:secondary {
-            background-color: #64748b;
-        }
-        button:disabled {
-            background-color: #94a3b8;
-            cursor: not-allowed;
-        }
         .progress {
             font-size: 13px;
             color: #666;
@@ -138,7 +131,8 @@
         let allVocabulary = [];
         let activeVocabulary = [];
         let currentIndex = 0;
-        let synth = window.speechSynthesis;
+        let currentAudio = null;
+        let wordSpans = [];
 
         async function loadVocabulary() {
             try {
@@ -214,7 +208,11 @@
             showWord();
         }
 
-        let wordSpans = [];
+        function getAudioFilename(word) {
+            let safe = word.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            while (safe.includes('__')) safe = safe.replace('__', '_');
+            return safe.replace(/^_+|_+$/g, '') + '.mp3';
+        }
 
         function showWord() {
             if (currentIndex >= activeVocabulary.length) {
@@ -234,63 +232,48 @@
             engContainer.innerHTML = "";
             wordSpans = [];
 
-            // Wörter / Tokens aufteilen für Highlighting
             const tokens = current.en.match(/[\w'-]+|[^\s\w]/g) || [current.en];
             tokens.forEach(token => {
                 const span = document.createElement("span");
                 span.className = "word-token";
                 span.innerText = token;
                 engContainer.appendChild(span);
-
-                if (/[\w'-]+/.test(token)) {
-                    wordSpans.push({ element: span, isPunctuation: false });
-                } else {
-                    wordSpans.push({ element: span, isPunctuation: true });
-                }
+                wordSpans.push({ element: span, isPunctuation: !/[\w'-]+/.test(token) });
             });
 
-            // Automatisch beim Aufrufen direkt vorlesen lassen
             playAudio();
         }
 
         function playAudio() {
-            if (!synth) {
-                alert("Dein Browser unterstützt keine Sprachausgabe.");
-                return;
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
             }
 
-            synth.cancel();
-
             const current = activeVocabulary[currentIndex];
-            let utterance = new SpeechSynthesisUtterance(current.en);
-            utterance.lang = 'en-GB'; // Britisches Englisch
-            utterance.rate = 0.8;     // Ruhiges Lerntempo
+            const filename = getAudioFilename(current.en);
+            
+            // Da die MP3s direkt im Hauptverzeichnis liegen:
+            currentAudio = new Audio(filename);
 
-            let currentTokenIndex = 0;
+            currentAudio.play().catch(err => {
+                console.error("Audio konnte nicht abgespielt werden: ", filename, err);
+            });
 
-            utterance.onboundary = function(event) {
-                if (event.name === 'word') {
-                    wordSpans.forEach(item => item.element.classList.remove("highlight"));
-                    
-                    while (currentTokenIndex < wordSpans.length && wordSpans[currentTokenIndex].isPunctuation) {
-                        currentTokenIndex++;
-                    }
-                    if (wordSpans[currentTokenIndex]) {
-                        wordSpans[currentTokenIndex].element.classList.add("highlight");
-                        currentTokenIndex++;
-                    }
-                }
-            };
-
-            utterance.onend = function() {
-                wordSpans.forEach(item => item.element.classList.remove("highlight"));
-            };
-
-            synth.speak(utterance);
+            // Einfaches Highlighting während des Abspielens
+            let wordOnlySpans = wordSpans.filter(s => !s.isPunctuation);
+            if (wordOnlySpans.length > 0) {
+                wordOnlySpans.forEach(s => s.element.classList.add("highlight"));
+                currentAudio.onended = function() {
+                    wordOnlySpans.forEach(s => s.element.classList.remove("highlight"));
+                };
+            }
         }
 
         function nextWord() {
-            synth.cancel();
+            if (currentAudio) {
+                currentAudio.pause();
+            }
             currentIndex++;
             showWord();
         }

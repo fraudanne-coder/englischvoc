@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satzbau-Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 520px;
+            text-align: center;
+        }
+        .vocabulary-highlight {
+            font-size: 18px;
+            color: #0284c7;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .hint {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        #drop-zone {
+            min-height: 55px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+        #word-pool {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .word-chip {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .word-chip:hover {
+            background-color: #bae6fd;
+        }
+        select {
+            width: 85%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+        button {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0369a1;
+        }
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .setup-screen { display: block; }
+        .exercise-screen { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Satzbau-Training</h2>
+        
+        <!-- BATCH-AUSWAHL -->
+        <div id="setup-screen" class="setup-screen">
+            <p style="font-size: 14px; color: #445;">Wähle ein Kapitel / Batch aus:</p>
+            <select id="batch-select">
+                <option value="all">Alle Batches laden</option>
+            </select>
+            <br>
+            <button onclick="startTraining()">Satzbau starten</button>
+        </div>
+
+        <!-- ÜBUNG -->
+        <div id="exercise-screen" class="exercise-screen">
+            <div class="vocabulary-highlight" id="vocab-target">Vokabel: -</div>
+            <p class="hint" id="translation-hint">-</p>
+            
+            <p style="font-size: 13px; text-align: left; margin: 0 0 5px 0; color: #555;">Bringe die Wörter in die richtige Reihenfolge:</p>
+            <div id="drop-zone"></div>
+
+            <p style="font-size: 13px; text-align: left; margin: 0 0 5px 0; color: #555;">Verfügbare Wörter:</p>
+            <div id="word-pool"></div>
+            
+            <button onclick="checkSentence()">Prüfen</button>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let allExercises = [];
+        let activeExercises = [];
+        let currentIndex = 0;
+
+        async function loadExercises() {
+            try {
+                const response = await fetch('vokabeln.csv');
+                const data = await response.text();
+                
+                const lines = data.trim().split('\n');
+                let batchesSet = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const row = parseCSVRow(lines[i]);
+                    if (row.length >= 5 && row[3].trim() !== "") {
+                        const batch = row[0].trim();
+                        allExercises.push({
+                            batch: batch,
+                            targetWord: `${row[1].trim()} (${row[2].trim()})`,
+                            translation: row[4].trim(),
+                            correct: row[3].trim().split(',')
+                        });
+                        if (batch) batchesSet.add(batch);
+                    }
+                }
+
+                const select = document.getElementById("batch-select");
+                batchesSet.forEach(batch => {
+                    const option = document.createElement("option");
+                    option.value = batch;
+                    option.innerText = batch.charAt(0).toUpperCase() + batch.slice(1);
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                alert("Fehler beim Laden der vokabeln.csv vom Server.");
+                console.error(error);
+            }
+        }
+
+        function parseCSVRow(text) {
+            let result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function startTraining() {
+            const selectedBatch = document.getElementById("batch-select").value;
+            
+            if (selectedBatch === "all") {
+                activeExercises = [...allExercises];
+            } else {
+                activeExercises = allExercises.filter(item => item.batch === selectedBatch);
+            }
+
+            if (activeExercises.length === 0) {
+                alert("Keine Sätze für diesen Batch gefunden!");
+                return;
+            }
+
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("exercise-screen").style.display = "block";
+            
+            currentIndex = 0;
+            loadExercise();
+        }
+
+        function loadExercise() {
+            if (currentIndex >= activeExercises.length) {
+                document.getElementById("exercise-screen").innerHTML = `
+                    <h2>Großartig! 🎉</h2>
+                    <p>Du hast alle Sätze dieses Batches erfolgreich gemeistert.</p>
+                    <button onclick="location.reload()">Neues Kapitel wählen</button>
+                `;
+                return;
+            }
+
+            const currentEx = activeExercises[currentIndex];
+            document.getElementById("vocab-target").innerText = `Fokus-Vokabel: ${currentEx.targetWord}`;
+            document.getElementById("translation-hint").innerText = `Satz: "${currentEx.translation}"`;
+            document.getElementById("result").innerText = "";
+            document.getElementById("drop-zone").innerHTML = "";
+
+            let shuffledWords = [...currentEx.correct].sort(() => Math.random() - 0.5);
+
+            const pool = document.getElementById("word-pool");
+            pool.innerHTML = "";
+
+            shuffledWords.forEach(word => {
+                const chip = document.createElement("div");
+                chip.className = "word-chip";
+                chip.innerText = word;
+                chip.onclick = function() {
+                    moveToZone(chip);
+                };
+                pool.appendChild(chip);
+            });
+        }
+
+        function moveToZone(chip) {
+            const dropZone = document.getElementById("drop-zone");
+            if (chip.parentNode.id === "word-pool") {
+                dropZone.appendChild(chip);
+            } else {
+                document.getElementById("word-pool").appendChild(chip);
+            }
+        }
+
+        function checkSentence() {
+            const dropZone = document.getElementById("drop-zone");
+            const selectedChips = dropZone.children;
+            let userSentence = [];
+            for (let chip of selectedChips) {
+                userSentence.push(chip.innerText);
+            }
+
+            const correct = activeExercises[currentIndex].correct;
+            const resultDiv = document.getElementById("result");
+
+            if (JSON.stringify(userSentence) === JSON.stringify(correct)) {
+                resultDiv.style.color = "#16a34a";
+                resultDiv.innerText = "Richtig! Super gemacht! 🌟";
+                currentIndex++;
+                setTimeout(loadExercise, 1500);
+            } else {
+                resultDiv.style.color = "#dc2626";
+                resultDiv.innerText = "Leider nicht ganz richtig. Klicke auf die Wörter, um sie anzupassen.";
+            }
+        }
+
+        loadExercises();
+    </script>
+
+</body>
+</html>

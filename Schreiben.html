@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabel-Schreibtrainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 450px;
+            text-align: center;
+        }
+        .hint-german {
+            font-size: 20px;
+            color: #0284c7;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        input[type="text"]:focus {
+            border-color: #0284c7;
+            outline: none;
+        }
+        select {
+            width: 85%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+        button {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0369a1;
+        }
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .progress {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .setup-screen {
+            display: block;
+        }
+        .exercise-screen {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Schreibtraining</h2>
+
+        <!-- STARTBILDSCHIRM (BATCH-AUSWAHL) -->
+        <div id="setup-screen" class="setup-screen">
+            <p style="font-size: 14px; color: #445;">Wähle ein Kapitel / Batch aus:</p>
+            <select id="batch-select">
+                <option value="all">Alle Batches laden</option>
+            </select>
+            <br>
+            <button onclick="startTraining()">Training starten</button>
+        </div>
+
+        <!-- ÜBUNGSBILDSCHIRM -->
+        <div id="exercise-screen" class="exercise-screen">
+            <div class="progress" id="progress-display">Vokabel 1 von 1</div>
+            
+            <p style="font-size: 14px; color: #445;">Schreibe das englische Wort:</p>
+            <div class="hint-german" id="german-word">-</div>
+            
+            <input type="text" id="user-input" placeholder="Englische Vokabel..." autocomplete="off">
+            <br>
+            <button onclick="checkInput()">Prüfen</button>
+            
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let allVocabulary = [];
+        let activeVocabulary = [];
+        let currentIndex = 0;
+
+        async function loadVocabulary() {
+            try {
+                const response = await fetch('vokabeln.csv');
+                const data = await response.text();
+                
+                const lines = data.trim().split('\n');
+                let batchesSet = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const row = parseCSVRow(lines[i]);
+                    if (row.length >= 3) {
+                        const batch = row[0].trim();
+                        const en = row[1].trim();
+                        const de = row[2].trim();
+                        
+                        allVocabulary.push({ batch, en, de });
+                        if (batch) batchesSet.add(batch);
+                    }
+                }
+
+                // Dropdown mit gefundenen Batches füllen
+                const select = document.getElementById("batch-select");
+                batchesSet.forEach(batch => {
+                    const option = document.createElement("option");
+                    option.value = batch;
+                    option.innerText = batch.charAt(0).toUpperCase() + batch.slice(1);
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                alert("Fehler beim Laden der vokabeln.csv vom Server.");
+                console.error(error);
+            }
+        }
+
+        function parseCSVRow(text) {
+            let result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function startTraining() {
+            const selectedBatch = document.getElementById("batch-select").value;
+            
+            if (selectedBatch === "all") {
+                activeVocabulary = [...allVocabulary];
+            } else {
+                activeVocabulary = allVocabulary.filter(item => item.batch === selectedBatch);
+            }
+
+            if (activeVocabulary.length === 0) {
+                alert("Keine Vokabeln für diesen Batch gefunden!");
+                return;
+            }
+
+            // Shuffle für Abwechslung
+            activeVocabulary.sort(() => Math.random() - 0.5);
+
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("exercise-screen").style.display = "block";
+            
+            currentIndex = 0;
+            loadWord();
+        }
+
+        function loadWord() {
+            if (currentIndex >= activeVocabulary.length) {
+                document.getElementById("exercise-screen").innerHTML = `
+                    <h2>Super gemacht! 🎉</h2>
+                    <p>Du hast diesen Batch erfolgreich abgeschlossen.</p>
+                    <button onclick="location.reload()">Neues Kapitel wählen</button>
+                `;
+                return;
+            }
+
+            document.getElementById("progress-display").innerText = `Vokabel ${currentIndex + 1} von ${activeVocabulary.length}`;
+            document.getElementById("german-word").innerText = activeVocabulary[currentIndex].de;
+            document.getElementById("user-input").value = "";
+            document.getElementById("result").innerText = "";
+            document.getElementById("user-input").focus();
+        }
+
+        function checkInput() {
+            const userInput = document.getElementById("user-input").value.trim().toLowerCase();
+            const correctAnswer = activeVocabulary[currentIndex].en.toLowerCase();
+            const resultDiv = document.getElementById("result");
+
+            if (userInput === correctAnswer) {
+                resultDiv.style.color = "#16a34a";
+                resultDiv.innerText = "Richtig! 🌟";
+                currentIndex++;
+                setTimeout(loadWord, 1200);
+            } else {
+                resultDiv.style.color = "#dc2626";
+                resultDiv.innerText = `Leider falsch. Richtig wäre: "${activeVocabulary[currentIndex].en}"`;
+            }
+        }
+
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkInput();
+            }
+        });
+
+        loadVocabulary();
+    </script>
+
+</body>
+</html>
